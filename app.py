@@ -3,12 +3,13 @@ from tkinter import ttk
 from screeninfo import get_monitors
 from time import strftime
 
-def agregar_registro():
-    texto = entrada.get()
-    if texto:
-        hora_actual = strftime("%H:%M:%S")  # Obtiene la hora actual en formato HH:MM:SS
-        lista_registros.insert(0, (texto, "", hora_actual))  # Agrega una tupla con matrícula, nombre (en blanco) y hora
-        entrada.delete(0, "end")
+# Función para agregar una nueva fila
+def agregar_fila():
+    matricula = entrada.get()
+    hora_actual = strftime("%H:%M:%S")
+    nombre = "Fernando"
+    lista_registros.insert("", "end", values=(matricula, nombre, hora_actual))
+    entrada.delete(0, "end")
 
 # Crear una ventana
 ventana = tk.Tk()
@@ -17,39 +18,46 @@ ventana.title("Escáner de Registros")
 monitores = get_monitors()
 
 if monitores:
-    monitor = monitores[0]  # Tomamos el primer monitor, puedes ajustar esto según tus necesidades
+    monitor = monitores[0]
     ventana.geometry(f"{monitor.width}x{monitor.height}")
 
-# Crear un marco para los encabezados
-marco_encabezados = tk.Frame(ventana)
-marco_encabezados.grid(row=0, column=0, columnspan=3, sticky="nsew")
+# Crear un marco para la grilla
+marco_grilla = ttk.Frame(ventana)
+marco_grilla.pack(expand=True, fill="both")
 
-# Etiquetas para las columnas (Matrícula, Nombre, Hora)
-tk.Label(marco_encabezados, text="Matrícula").grid(row=0, column=0)
-tk.Label(marco_encabezados, text="Nombre").grid(row=0, column=1)
-tk.Label(marco_encabezados, text="Hora").grid(row=0, column=2)
+# Configurar la geometría de la grilla
+marco_grilla.grid_rowconfigure(0, weight=0)
+marco_grilla.grid_columnconfigure(0, weight=1)
+marco_grilla.grid_columnconfigure(1, weight=1)
+marco_grilla.grid_columnconfigure(2, weight=1)
 
-# Configurar la geometría de la ventana
-ventana.grid_rowconfigure(0, weight=1)  # Fila para la lista de registros
-ventana.grid_rowconfigure(1, weight=0)  # Fila para el campo de entrada
-ventana.grid_columnconfigure(0, weight=1)  # Columna 0 (Matrícula)
-ventana.grid_columnconfigure(1, weight=1)  # Columna 1 (Nombre)
-ventana.grid_columnconfigure(2, weight=1)  # Columna 2 (Hora)
+# Crear un estilo para los encabezados
+columna_estilo = ttk.Style()
+columna_estilo.configure("Encabezado.TLabel", foreground="black", font=("Arial", 12), anchor="center")
+columna_estilo.configure("Celda.TLabel", borderwidth=2, relief="solid")
 
-# Crear una lista para mostrar los registros
-lista_registros = tk.Listbox(ventana, selectmode=tk.SINGLE, borderwidth=2, relief="solid")
+# Crear una grilla para mostrar los registros
+lista_registros = ttk.Treeview(marco_grilla, columns=("Matrícula", "Nombre", "Hora"), show="headings")
 lista_registros.grid(row=1, column=0, columnspan=3, sticky="nsew")
-lista_registros.config(height=20)  # Altura de la lista de registros (en píxeles)
+lista_registros.heading("Matrícula", text="Matrícula")
+lista_registros.heading("Nombre", text="Nombre")
+lista_registros.heading("Hora", text="Hora")
+lista_registros.column("Matrícula", anchor="center")
+lista_registros.column("Nombre", anchor="center")
+lista_registros.column("Hora", anchor="center")
+lista_registros.configure(style="Celda.TLabel")
 
 # Crear un campo de entrada
-entrada = tk.Entry(ventana, font=("Arial", 16))  # Puedes ajustar la fuente y el tamaño
-entrada.grid(row=2, column=0, columnspan=3, sticky="nsew")
+entrada = tk.Entry(marco_grilla, font=("Arial", 12), bg="red")
+entrada.grid(row=2, column=2, sticky="nsew", padx=5, pady=5)
 
-# Configurar la cantidad de filas que abarca el campo de entrada en la cuadrícula
-ventana.grid_rowconfigure(2, weight=0)  # Fila 2 (campo de entrada)
+# Configurar la geometría de la entrada
+marco_grilla.grid_rowconfigure(1, weight=1)
+marco_grilla.grid_rowconfigure(2, weight=0)
+marco_grilla.grid_columnconfigure(2, weight=1)
 
 # Configurar una función para agregar registros cuando se presiona Enter
-entrada.bind("<Return>", lambda event: agregar_registro())
+entrada.bind("<Return>", lambda event: agregar_fila())
 
 # Iniciar la ventana
 ventana.mainloop()
